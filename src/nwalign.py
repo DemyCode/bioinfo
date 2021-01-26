@@ -16,7 +16,7 @@ def step1(cmd, x, y, gamma_e, gamma_o, mode):
     score_matrix = np.zeros((len(x), len(y)))
     substitution_matrix = np.identity(4)
     substitution_matrix = substitution_matrix + (substitution_matrix - 1)
-    print(substitution_matrix)
+    # print(substitution_matrix)
     sub_dict = ['A', 'T', 'C', 'G']
     if cmd == 'rna':
         sub_dict = ['A', 'U', 'C', 'G']
@@ -39,7 +39,7 @@ def step1(cmd, x, y, gamma_e, gamma_o, mode):
 
 
 def main(cmd, x, y, gamma_e, gamma_o, mode):
-    print(step1(cmd, x, y, gamma_e, gamma_o, mode))
+    print(step1(cmd, x, y, gamma_e, gamma_o, mode)[-1, -1] + 1)
 
 
 if __name__ == '__main__':
