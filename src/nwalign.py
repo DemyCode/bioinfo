@@ -12,11 +12,10 @@ def dict_ind(letter, sub_dict):
             return i
 
 
-def step1(cmd, x, y, gamma_e, gamma_o, mode):
+def needlewunschman(cmd, x, y, gamma_e, gamma_o, mode):
     score_matrix = np.zeros((len(x) + 1, len(y) + 1))
-    substitution_matrix = np.identity(4)
-    substitution_matrix = substitution_matrix + (substitution_matrix - 1)
-    # print(substitution_matrix)
+    backtrack_matrix = np.zeros((len(x) + 1, len(y) + 1, 2), dtype='int')
+    substitution_matrix = np.identity(4) + (np.identity(4) - 1)
     sub_dict = ['A', 'T', 'C', 'G']
     if cmd == 'rna':
         sub_dict = ['A', 'U', 'C', 'G']
@@ -31,15 +30,60 @@ def step1(cmd, x, y, gamma_e, gamma_o, mode):
         score_matrix[0, j] = j * gamma_e
     for i in range(1, score_matrix.shape[0]):
         for j in range(1, score_matrix.shape[1]):
-            substitution = substitution_matrix[dict_ind(x[i - 1], sub_dict), dict_ind(y[j - 1], sub_dict)] + score_matrix[i - 1, j - 1]
+            # For x and y the indices are one index ahead so x - 1 instead of x, same for y
+            substitution = substitution_matrix[dict_ind(x[i - 1], sub_dict), dict_ind(y[j - 1], sub_dict)] + \
+                           score_matrix[i - 1, j - 1]
             insertion = gamma_e + score_matrix[i - 1, j]
             deletion = gamma_e + score_matrix[i, j - 1]
-            score_matrix[i, j] = max(substitution, insertion, deletion)
-    return score_matrix
+            score_matrix[i, j] = substitution
+            backtrack_matrix[i, j] = [i - 1, j - 1]
+            if score_matrix[i, j] < insertion:
+                score_matrix[i, j] = insertion
+                backtrack_matrix[i, j] = [i - 1, j]
+            if score_matrix[i, j] < deletion:
+                score_matrix[i, j] = deletion
+                backtrack_matrix[i, j] = [i, j - 1]
+    return score_matrix, backtrack_matrix
+
+
+def matrix_treatment(cmd, score_matrix, backtrack_matrix):
+    if cmd == 'score':
+        print(score_matrix[-1, -1])
+        return
+    u, v = score_matrix.shape[0] - 1, score_matrix.shape[1] - 1
+    resx = ''
+    resy = ''
+    while u != 0 and v != 0:
+        newu, newv = backtrack_matrix[u, v]
+        if newu == u - 1 and newv == v - 1:
+            resx = x[u - 1] + resx
+            resy = y[v - 1] + resy
+        if newu == u - 1 and newv == v:
+            resx = x[u - 1] + resx
+            resy = '-' + resy
+        if newu == u and newv == v - 1:
+            resx = '-' + resx
+            resy = y[v - 1] + resy
+        u, v = newu, newv
+    newu, newv = backtrack_matrix[u, v]
+    if newu == u - 1 and newv == v - 1:
+        resx = x[u - 1] + resx
+        resy = y[v - 1] + resy
+    if newu == u - 1 and newv == v:
+        resx = x[u - 1] + resx
+        resy = '-' + resy
+    if newu == u and newv == v - 1:
+        resx = '-' + resx
+        resy = y[v - 1] + resy
+    u, v = newu, newv
+    print(resx)
+    print(resy)
 
 
 def main(cmd, x, y, gamma_e, gamma_o, mode):
-    print(step1(cmd, x, y, gamma_e, gamma_o, mode)[-1, -1])
+    score_matrix, backtrack_matrix = needlewunschman(cmd, x, y, gamma_e, gamma_o, mode)
+    # print(backtrack_matrix)
+    matrix_treatment(cmd, score_matrix, backtrack_matrix)
 
 
 if __name__ == '__main__':
@@ -58,7 +102,7 @@ if __name__ == '__main__':
         gamma_e, gamma_o = arguments.gamma
 
     # First Check
-    if cmd not in ['score', 'nwalign']:
+    if cmd not in ['score', 'align']:
         raise RuntimeError('cmd : {} is unrecognized'.format(cmd))
 
     # Second Check
