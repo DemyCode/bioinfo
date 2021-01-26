@@ -13,7 +13,7 @@ def dict_ind(letter, sub_dict):
 
 
 def step1(cmd, x, y, gamma_e, gamma_o, mode):
-    score_matrix = np.zeros((len(x), len(y)))
+    score_matrix = np.zeros((len(x) + 1, len(y) + 1))
     substitution_matrix = np.identity(4)
     substitution_matrix = substitution_matrix + (substitution_matrix - 1)
     # print(substitution_matrix)
@@ -31,7 +31,7 @@ def step1(cmd, x, y, gamma_e, gamma_o, mode):
         score_matrix[0, j] = j * gamma_e
     for i in range(1, score_matrix.shape[0]):
         for j in range(1, score_matrix.shape[1]):
-            substitution = substitution_matrix[dict_ind(x[i], sub_dict), dict_ind(y[j], sub_dict)] + score_matrix[i - 1, j - 1]
+            substitution = substitution_matrix[dict_ind(x[i - 1], sub_dict), dict_ind(y[j - 1], sub_dict)] + score_matrix[i - 1, j - 1]
             insertion = gamma_e + score_matrix[i - 1, j]
             deletion = gamma_e + score_matrix[i, j - 1]
             score_matrix[i, j] = max(substitution, insertion, deletion)
@@ -39,7 +39,7 @@ def step1(cmd, x, y, gamma_e, gamma_o, mode):
 
 
 def main(cmd, x, y, gamma_e, gamma_o, mode):
-    print(step1(cmd, x, y, gamma_e, gamma_o, mode)[-1, -1] + 1)
+    print(step1(cmd, x, y, gamma_e, gamma_o, mode)[-1, -1])
 
 
 if __name__ == '__main__':
