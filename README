@@ -1,1 +1,4 @@
 # bioinfo
+
+This project is dependant on Numpy, please run : pip install numpy
+This project uses Python
