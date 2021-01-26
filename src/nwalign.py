@@ -17,12 +17,11 @@ def needlewunschman(cmd, x, y, gamma_e, gamma_o, mode):
     backtrack_matrix = np.zeros((len(x) + 1, len(y) + 1, 2), dtype='int')
     substitution_matrix = np.identity(4) + (np.identity(4) - 1)
     sub_dict = ['A', 'T', 'C', 'G']
-    if cmd == 'rna':
+    if mode == 'rna':
         sub_dict = ['A', 'U', 'C', 'G']
-    if cmd == 'protein':
+    if mode == 'protein':
         sub_dict = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P ', 'S',
                     'T', 'W', 'Y', 'V', 'B', 'Z', 'X']
-    if cmd == 'protein':
         substitution_matrix = blossum62()
     for i in range(score_matrix.shape[0]):
         score_matrix[i, 0] = i * gamma_e
@@ -88,7 +87,7 @@ def main(cmd, x, y, gamma_e, gamma_o, mode):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gamma', nargs=2)
+    parser.add_argument('--gamma', nargs=2, type=int)
     parser.add_argument('cmd')
     parser.add_argument('x')
     parser.add_argument('y')
